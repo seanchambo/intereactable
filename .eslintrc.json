@@ -1,0 +1,12 @@
+{
+    "extends": "airbnb",
+    "rules": {
+        "no-underscore-dangle": "off",
+        "no-unused-vars": [
+            "error",
+            {
+                "argsIgnorePattern": "^_"
+            }
+        ]
+    }
+}

@@ -1,0 +1,9 @@
+node_modules/
+.idea/
+.vscode/
+lib/
+.DS_Store
+dist/
+coverage/
+stats.html
+
