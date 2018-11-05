@@ -195,7 +195,7 @@ export default class MonitorImpl implements Monitor {
         clientSourceOffset: { x: sourcePosition.left, y: sourcePosition.top },
         initialClientOffset: { x: event.clientX, y: event.clientY },
         initialClientSourceOffset: { x: sourcePosition.left, y: sourcePosition.top },
-        diff: { x: event.clientX - sourcePosition.left, y: event.clientY - sourcePosition.left }
+        diff: { x: event.clientX - sourcePosition.left, y: event.clientY - sourcePosition.top }
       },
       state: {
         isDragging: true,
