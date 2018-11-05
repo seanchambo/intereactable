@@ -73,11 +73,11 @@ function DropTarget<Props = React.Props<any>>(itemType: string, spec: DropTarget
       }
 
       registerRef = (element: React.ReactInstance) => {
-        if (!(element instanceof Element)) { throw new Error('Ref must be applied to a native DOM Element') }
+        if (element === null) { return; }
         if (!this.isCurrentlyMounted) { return; }
         if (!this.manager) { return; }
-        if (element === null) { return; }
         if (element === this.element) { return; }
+        if (!(element instanceof Element)) { throw new Error('Ref must be applied to a native DOM Element') }
 
         this.unset();
         this.element = element;
