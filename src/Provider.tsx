@@ -1,28 +1,39 @@
 import * as React from 'react';
+import Registry from './Registry';
+import Controller from './Controller';
+import Model from './Model';
 
-import Manager from './Manager';
-import { Provider as ContextProvider } from './Context';
+export const { Consumer, Provider } = React.createContext<Context | undefined>(undefined);
 
-export declare interface ProviderState {
-  manager: Manager;
+interface Context {
+  model: Model;
+  controller: Controller;
+  registry: Registry;
 }
 
-export declare interface ProviderProps {
-  children: React.ReactNode;
-}
+class DragDropProvider extends React.PureComponent<{}, Context> {
+  constructor(props: {}) {
+    super(props);
 
-class Provider extends React.Component<ProviderProps, ProviderState> {
-  state: ProviderState = {
-    manager: new Manager(),
+    const model = new Model();
+    const controller = new Controller(model);
+    const registry = new Registry(model, controller);
+    model.setRegistry(registry);
+
+    this.state = {
+      model,
+      controller,
+      registry,
+    };
   }
 
   render() {
     return (
-      <ContextProvider value={this.state}>
+      <Provider value={this.state}>
         {this.props.children}
-      </ContextProvider>
+      </Provider>
     )
   }
 }
 
-export default Provider;
+export default DragDropProvider;
