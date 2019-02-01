@@ -38,6 +38,6 @@ export default {
       runtimeHelpers: true,
       exclude: 'node_modules/**'
     }),
-    uglify()
+    // uglify()
   ]
 };

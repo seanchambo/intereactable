@@ -1,5 +1,5 @@
 import * as React from 'react';
-const interact = require('interactjs');
+// const interact = require('interactjs');
 const shallowEqual = require('shallowequal');
 
 import { Unsubscribe } from './Monitor';
@@ -34,8 +34,8 @@ function DropTarget<Props = React.Props<any>>(itemType: string, spec: DropTarget
       manager: Manager;
       monitor: DropTargetMonitor;
       target: Target<Props>;
-      element: Element;
-      interact: any;
+      element: HTMLElement;
+      // interact: any;
       unsubscriptions: Unsubscribe[] = [];
 
       displayName = `DropTarget(${Decorated.displayName || Decorated.name || 'Component'})`;
@@ -55,48 +55,48 @@ function DropTarget<Props = React.Props<any>>(itemType: string, spec: DropTarget
       }
 
       componentWillUnmount() {
-        this.unset();
+        // this.unset();
         this.dispose();
 
         this.target = null;
         this.isCurrentlyMounted = false;
         this.element = null;
         this.manager = null;
-        this.interact = null;
+        // this.interact = null;
         this.monitor = null;
       }
 
-      unset = () => {
-        if (this.interact) {
-          this.interact['unset']();
-        }
-      }
+      // unset = () => {
+      //   if (this.interact) {
+      //     this.interact['unset']();
+      //   }
+      // }
 
       registerRef = (element: React.ReactInstance) => {
         if (element === null) { return; }
         if (!this.isCurrentlyMounted) { return; }
         if (!this.manager) { return; }
         if (element === this.element) { return; }
-        if (!(element instanceof Element)) { throw new Error('Ref must be applied to a native DOM Element') }
+        if (!(element instanceof HTMLElement)) { throw new Error('Ref must be applied to a native DOM Element') }
 
-        this.unset();
+        // this.unset();
         this.element = element;
-        this.interact = interact(this.element);
+        // this.interact = interact(this.element);
 
         this.target.receiveElement(this.element);
 
-        this.interact.dropzone({
-          ondragenter: () => {
-            if (this.monitor.getItemType() === this.itemType) {
-              this.target.enter(this.manager.monitor, this.targetId);
-            }
-          },
-          ondragleave: () => {
-            if (this.monitor.getItemType() === this.itemType) {
-              this.target.leave(this.manager.monitor, this.targetId);
-            }
-          },
-        });
+      //   this.interact.dropzone({
+      //     ondragenter: () => {
+      //       if (this.monitor.getItemType() === this.itemType) {
+      //         this.target.enter(this.manager.monitor, this.targetId);
+      //       }
+      //     },
+      //     ondragleave: () => {
+      //       if (this.monitor.getItemType() === this.itemType) {
+      //         this.target.leave(this.manager.monitor, this.targetId);
+      //       }
+      //     },
+      //   });
       }
 
       receiveManager = (manager: Manager) => {

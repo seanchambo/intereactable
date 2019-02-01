@@ -4,10 +4,11 @@ import MonitorImpl, { Monitor } from './Monitor';
 import { InteractEvent } from 'interactjs';
 
 export declare interface Source {
-  beginDrag: (monitor: MonitorImpl, sourceId: string, event: InteractEvent) => DragSourceItem;
+  element: HTMLElement;
+  beginDrag: (monitor: MonitorImpl, sourceId: string, event: MouseEvent) => DragSourceItem;
   canDrag: () => boolean;
   isDragging: (monitor: MonitorImpl, sourceId: string) => boolean;
-  move: (monitor: MonitorImpl, event: InteractEvent) => void;
+  move: (monitor: MonitorImpl, event: MouseEvent) => void;
   endDrag: (monitor: MonitorImpl) => void;
 }
 
@@ -15,7 +16,7 @@ export default class SourceImpl<Props> implements Source {
   monitor: DragSourceMonitor;
   spec: DragSourceSpecification<Props>;
   props: Props;
-  element: Element;
+  element: HTMLElement;
 
   constructor(monitor: DragSourceMonitor, spec: DragSourceSpecification<Props>) {
     this.monitor = monitor
@@ -26,11 +27,11 @@ export default class SourceImpl<Props> implements Source {
     this.props = props;
   }
 
-  receiveElement(element: Element) {
+  receiveElement(element: HTMLElement) {
     this.element = element;
   }
 
-  beginDrag = (contextMonitor: MonitorImpl, sourceId: string, event: InteractEvent): DragSourceItem => {
+  beginDrag = (contextMonitor: MonitorImpl, sourceId: string, event: MouseEvent): DragSourceItem => {
     if (!this.props) { return null }
     const item = this.spec.beginDrag(this.props, this.monitor);
     contextMonitor.beginDrag(sourceId, item, event);
@@ -49,7 +50,7 @@ export default class SourceImpl<Props> implements Source {
     return this.spec.canDrag(this.props, this.monitor);
   }
 
-  move = (contextMonitor: MonitorImpl, event: InteractEvent): void => {
+  move = (contextMonitor: MonitorImpl, event: MouseEvent): void => {
     if (!this.props) { return; }
     if (this.spec.move) {
       this.spec.move(this.props, this.monitor);

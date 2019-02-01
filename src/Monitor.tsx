@@ -185,8 +185,8 @@ export default class MonitorImpl implements Monitor {
     return Boolean(this.currentDragOperation.state.dragResult);
   }
 
-  beginDrag = (sourceId: string, item: DragSourceItem, event: InteractEvent): void => {
-    const sourcePosition = event.currentTarget.getBoundingClientRect();
+  beginDrag = (sourceId: string, item: DragSourceItem, event: MouseEvent): void => {
+    const sourcePosition = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const itemType = this.manager.registry.getItemType(sourceId);
 
     this.currentDragOperation = {
@@ -207,7 +207,7 @@ export default class MonitorImpl implements Monitor {
       }
     }
 
-    this.dirty = { dragSources: [this.getSourceId()], dropTargets: [...this.getTargetIds()] };
+    this.dirty = { dragSources: [this.getSourceId()], dropTargets: [] };
 
     this.publishOffsetChanges();
     this.publishStateChanges();
@@ -215,25 +215,39 @@ export default class MonitorImpl implements Monitor {
     this.dirty = null;
   }
 
-  move = (event: InteractEvent): void => {
+  move = (event: MouseEvent): void => {
     const diff = this.currentDragOperation.offset.diff;
     const sourcePosition = { x: event.clientX - diff.x, y: event.clientY - diff.y };
+    const clientOffset = { x: event.clientX, y: event.clientY };
+    const clientSourceOffset = sourcePosition;
 
-    this.currentDragOperation.offset.clientOffset = { x: event.clientX, y: event.clientY };
-    this.currentDragOperation.offset.clientSourceOffset = sourcePosition;
+    this.currentDragOperation.offset.clientOffset = clientOffset;
+    this.currentDragOperation.offset.clientSourceOffset = clientSourceOffset;
 
-    if (this.getTargetIds().length) {
-      for (const targetId of this.getTargetIds()) {
-        const target = this.manager.registry.getTarget(targetId);
-        target.hover();
+    const newTargetIds = [];
+    const prevTargetIds = [...this.getTargetIds()];
+
+    for (const targetId of this.manager.registry.targets.keys()) {
+      const target = this.manager.registry.getTarget(targetId);
+
+      if (this.manager.registry.getItemType(targetId) !== this.getItemType()) { continue; }
+
+      const { top, bottom, left, right } = target.element.getBoundingClientRect();
+
+      if (clientOffset.x >= left && clientOffset.x <= right && clientOffset.y >= top && clientOffset.y <= bottom) {
+        newTargetIds.push(targetId);
       }
     }
 
-    this.dirty = { dragSources: [this.getSourceId()], dropTargets: [...this.getTargetIds()] }
+    this.currentDragOperation.state.dropTargetIds = newTargetIds;
+    this.dirty = { dragSources: [this.getSourceId()], dropTargets: [...newTargetIds, ...prevTargetIds] }
 
     this.publishOffsetChanges();
+    this.publishStateChanges();
 
     this.dirty = null;
+
+    this.hover();
   }
 
   drop = (): void => {
@@ -275,24 +289,5 @@ export default class MonitorImpl implements Monitor {
         target.hover();
       }
     }
-  }
-
-  enter = (targetId: string) => {
-    this.currentDragOperation.state.dropTargetIds.unshift(targetId);
-    this.dirty = { dragSources: [this.getSourceId()], dropTargets: [...this.getTargetIds()] }
-
-    this.publishStateChanges();
-
-    this.dirty = null;
-  }
-
-  leave = (targetId: string) => {
-    this.dirty = { dragSources: [this.getSourceId()], dropTargets: [...this.getTargetIds()] }
-    const newDropTargets = this.currentDragOperation.state.dropTargetIds.filter(id => id !== targetId);
-    this.currentDragOperation.state.dropTargetIds = newDropTargets;
-
-    this.publishStateChanges();
-
-    this.dirty = null;
   }
 }

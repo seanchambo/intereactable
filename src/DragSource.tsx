@@ -1,5 +1,5 @@
 import * as React from 'react';
-const interact = require('interactjs');
+// const interact = require('interactjs');
 const shallowEqual = require('shallowequal');
 
 import { Unsubscribe } from './Monitor';
@@ -39,8 +39,8 @@ function DragSource<Props = React.Props<any>>(itemType: string, spec: DragSource
       manager: Manager;
       monitor: DragSourceMonitor;
       source: Source<Props>;
-      element: Element;
-      interact: any;
+      element: HTMLElement;
+      // interact: any;
       unsubscriptions: Unsubscribe[] = [];
 
       displayName = `DragSource(${Decorated.displayName || Decorated.name || 'Component'})`;
@@ -58,59 +58,75 @@ function DragSource<Props = React.Props<any>>(itemType: string, spec: DragSource
           this.handleChange();
         }
 
-        if (this.interact) {
-          if (this.source.canDrag()) {
-            (this.interact.draggable as any)(true);
-          } else {
-            (this.interact.draggable as any)(false);
-          }
-        }
+        // if (this.interact) {
+        //   if (this.source.canDrag()) {
+        //     (this.interact.draggable as any)(true);
+        //   } else {
+        //     (this.interact.draggable as any)(false);
+        //   }
+        // }
       }
 
       componentWillUnmount() {
-        this.unset();
+        // this.unset();
         this.dispose();
 
         this.sourceId = null;
         this.isCurrentlyMounted = false;
         this.element = null;
         this.manager = null;
-        this.interact = null;
+        // this.interact = null;
         this.monitor = null;
       }
 
-      unset = () => {
-        if (this.interact) {
-          this.interact['unset']();
-        }
-      }
+      // unset = () => {
+      //   if (this.interact) {
+      //     this.interact['unset']();
+      //   }
+      // }
 
       registerRef = (element: React.ReactInstance) => {
         if (element === null) { return; }
         if (!this.isCurrentlyMounted) { return; }
         if (!this.manager) { return; }
         if (element === this.element) { return; }
-        if (!(element instanceof Element)) { throw new Error('Ref must be applied to a native DOM Element') }
+        if (!(element instanceof HTMLElement)) { throw new Error('Ref must be applied to a native DOM Element') }
 
-        this.unset();
+        // this.unset();
         this.element = element;
-        this.interact = interact(this.element);
+        // this.interact = interact(this.element);
 
         this.source.receiveElement(this.element);
 
-        this.interact.draggable({
-          maxPerElement: Infinity,
-          autoScroll: true,
-          onstart: (event: any) => {
-            this.source.beginDrag(this.manager.monitor, this.sourceId, event);
-          },
-          onmove: (event: any) => {
+        this.element.addEventListener('mousedown', (event: MouseEvent) => {
+          const handleMove = (event: MouseEvent) => {
             this.source.move(this.manager.monitor, event);
-          },
-          onend: () => {
+          }
+
+          const handleEnd = () => {
+            document.removeEventListener('mousemove', handleMove);
+            document.removeEventListener('mouseup', handleEnd);
             this.source.endDrag(this.manager.monitor);
-          },
+          }
+
+          this.source.beginDrag(this.manager.monitor, this.sourceId, event);
+          document.addEventListener('mousemove', handleMove);
+          document.addEventListener('mouseup', handleEnd);
         });
+
+        // this.interact.draggable({
+        //   maxPerElement: Infinity,
+        //   autoScroll: true,
+        //   onstart: (event: any) => {
+        //     this.source.beginDrag(this.manager.monitor, this.sourceId, event);
+        //   },
+        //   onmove: (event: any) => {
+        //     this.source.move(this.manager.monitor, event);
+        //   },
+        //   onend: () => {
+        //     this.source.endDrag(this.manager.monitor);
+        //   },
+        // });
       }
 
       receiveManager = (manager: Manager) => {

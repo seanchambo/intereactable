@@ -5,10 +5,9 @@ import { DropTargetSpecification } from './DropTarget';
 export declare interface DropResult { [key: string]: any }
 
 export declare interface Target {
+  element: HTMLElement;
   canDrop: () => boolean;
   drop: () => DropResult;
-  enter: (monitor: MonitorImpl, targetId: string) => void;
-  leave: (monitor: MonitorImpl, targetId: string) => void;
   hover: () => void;
 }
 
@@ -16,7 +15,7 @@ export default class TargetImpl<Props> implements Target {
   monitor: DropTargetMonitor;
   spec: DropTargetSpecification<Props>;
   props: Props;
-  element: Element;
+  element: HTMLElement;
 
   constructor(monitor: DropTargetMonitor, spec: DropTargetSpecification<Props>) {
     this.monitor = monitor
@@ -27,7 +26,7 @@ export default class TargetImpl<Props> implements Target {
     this.props = props;
   }
 
-  receiveElement(element: Element) {
+  receiveElement(element: HTMLElement) {
     this.element = element;
   }
 
@@ -40,22 +39,6 @@ export default class TargetImpl<Props> implements Target {
   drop = (): DropResult => {
     if (!this.props) { return null; }
     return this.spec.drop(this.props, this.monitor);
-  }
-
-  enter = (contextMonitor: MonitorImpl, targetId: string): void => {
-    if (!this.props) { return; }
-    if (this.spec.enter) {
-      this.spec.enter(this.props, this.monitor);
-    }
-    contextMonitor.enter(targetId);
-  }
-
-  leave = (contextMonitor: MonitorImpl, targetId: string): void => {
-    if (!this.props) { return; }
-    if (this.spec.leave) {
-      this.spec.leave(this.props, this.monitor);
-    }
-    contextMonitor.leave(targetId);
   }
 
   hover = (): void => {
