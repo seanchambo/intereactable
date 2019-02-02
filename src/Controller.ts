@@ -15,6 +15,8 @@ export default class Controller {
 
   registerDragSource = (id: string, element: HTMLElement): Unsubscribe => {
     const handleMouseMove = (event: MouseEvent) => {
+      event.preventDefault();
+
       this.model.move(event);
     }
 
@@ -26,6 +28,8 @@ export default class Controller {
     }
 
     const handleMouseDown = (event: MouseEvent) => {
+      event.preventDefault();
+
       const viewModel = this.registry.getDragSourceViewModel(id);
       if (!viewModel.canDrag()) { return; }
 
