@@ -63,8 +63,6 @@ export default function DragSourceViewModel<Props>(
         this.registry.unregisterDragSourceViewModel(this.id);
         this.id = null;
         this.element = null;
-        this.registry = null;
-        this.model = null;
         this.isCurrentlyMounted = false;
       }
 
