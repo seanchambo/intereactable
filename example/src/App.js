@@ -26,7 +26,7 @@ const itemSpec = {
   endDrag: (props, model) => console.log('** endDrag'),
 }
 
-const DraggableItem = DragSourceViewModel(() => `1`, 'item', itemSpec, itemCollect)(Item);
+const DraggableItem = DragSourceViewModel((props) => props.id.toString(), 'item', itemSpec, itemCollect)(Item);
 
 const Zone = (props) => {
   let style = { width: 500, height: 500, backgroundColor: 'yellow', opacity: 0.5 };
@@ -83,7 +83,8 @@ class App extends React.Component {
   render() {
     return (
       <Provider>
-        <DraggableItem />
+        <DraggableItem id={1} />
+        <DraggableItem id={2} />
         <DroppableZone />
         <DragLayerPreview />
       </Provider>

@@ -1,4 +1,5 @@
 import Registry, { Unsubscribe } from "./Registry";
+import { DragSourceViewModelImpl } from "./DragSourceViewModel";
 
 interface XYCoordinate {
   x: number;
@@ -9,6 +10,7 @@ interface DragOperationState {
   dragSourceId: string;
   dropTargetIds: string[];
   itemType: string;
+  dragSourceViewModel: DragSourceViewModelImpl;
 }
 
 interface DragOperationOffsets {
@@ -82,6 +84,13 @@ export default class Model {
   getDragSourceId = (): string | null => {
     if (this.currentOperation) {
       return this.currentOperation.state.dragSourceId;
+    }
+    return null;
+  }
+
+  getDragSourceViewModel = (): DragSourceViewModelImpl | null => {
+    if (this.currentOperation) {
+      return this.currentOperation.state.dragSourceViewModel;
     }
     return null;
   }
@@ -172,6 +181,7 @@ export default class Model {
         dragSourceId: id,
         dropTargetIds: [],
         itemType: dragSourceViewModel.itemType,
+        dragSourceViewModel,
       },
       offsets: {
         clientOffset: { x: event.clientX, y: event.clientY },
@@ -239,7 +249,6 @@ export default class Model {
   }
 
   endDrag = (event: Event) => {
-    const sourceViewModel = this.registry.getDragSourceViewModel(this.getDragSourceId());
     for (const dropTargetId of this.getDropTargetIds()) {
       const viewModel = this.registry.getDropTargetViewModel(dropTargetId);
 
@@ -256,7 +265,7 @@ export default class Model {
 
     this.pushStateChanges();
 
-    sourceViewModel.endDrag();
+    this.getDragSourceViewModel().endDrag();
 
     this.dirtyViews = { dragSources: [this.getDragSourceId()], dropTargets: [] };
     this.currentOperation = null;
