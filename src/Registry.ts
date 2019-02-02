@@ -1,33 +1,29 @@
 import Model, { ShouldUpdateSubscription } from "./Model";
 import Controller from "./Controller";
+import { DragSourceViewModelImpl } from "./DragSourceViewModel";
+import { DropTargetViewModelImpl } from "./DropTargetViewModel";
 
 export type Unsubscribe = () => void;
-
-interface ViewModel {
-  element: HTMLElement;
-  itemType: string;
-  handleChange: () => void;
-}
 
 export default class Registry {
   controller: Controller;
   model: Model;
-  dragSources: { [key: string]: { viewModel: ViewModel, subscriptions: Unsubscribe[] } } = {};
-  dropTargets: { [key: string]: { viewModel: ViewModel, subscriptions: Unsubscribe[] } } = {};
+  dragSources: { [key: string]: { viewModel: DragSourceViewModelImpl, subscriptions: Unsubscribe[] } } = {};
+  dropTargets: { [key: string]: { viewModel: DropTargetViewModelImpl, subscriptions: Unsubscribe[] } } = {};
 
   constructor(model: Model, controller: Controller) {
     this.model = model;
     this.controller = controller;
   }
 
-  getDragSourceViewModel = (id: string): ViewModel | null => {
+  getDragSourceViewModel = (id: string): DragSourceViewModelImpl | null => {
     return (this.dragSources[id] && this.dragSources[id].viewModel) || null;
   }
-  getDropTargetViewModel = (id: string): ViewModel | null => {
+  getDropTargetViewModel = (id: string): DropTargetViewModelImpl | null => {
     return (this.dropTargets[id] && this.dropTargets[id].viewModel) || null;
   }
 
-  registerDragSourceViewModel = (id: string, viewModel: ViewModel): void => {
+  registerDragSourceViewModel = (id: string, viewModel: DragSourceViewModelImpl): void => {
     const shouldUpdate: ShouldUpdateSubscription = (dirtyView) => {
       return dirtyView.dragSources.indexOf(id) >= 0;
     }
@@ -41,7 +37,7 @@ export default class Registry {
 
     this.dragSources[id] = { viewModel, subscriptions };
   }
-  registerDropTargetViewModel = (id: string, viewModel: ViewModel): void => {
+  registerDropTargetViewModel = (id: string, viewModel: DropTargetViewModelImpl): void => {
     const shouldUpdate: ShouldUpdateSubscription = (dirtyView) => {
       return dirtyView.dropTargets.indexOf(id) >= 0;
     }

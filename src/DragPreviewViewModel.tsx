@@ -31,7 +31,6 @@ export default function DragPreviewViewModel(collect: DragPreviewViewModelCollec
         if (!this.isCurrentlyMounted) { return; }
 
         const state = collect(this.model);
-        console.log(state);
 
         if (!shallowEqual(state, this.state)) {
           this.setState(state);

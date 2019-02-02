@@ -189,6 +189,8 @@ export default class Model {
     this.pushOffsetChanges();
 
     this.dirtyViews = null;
+
+    dragSourceViewModel.beginDrag();
   }
 
   move = (event: MouseEvent) => {
@@ -200,14 +202,62 @@ export default class Model {
     this.currentOperation.offsets.clientOffset = clientOffset;
     this.currentOperation.offsets.sourceClientOffset = sourceClientOffset;
 
-    this.dirtyViews = { dragSources: [this.getDragSourceId()], dropTargets: [] };
+    const newDropTargetIds = [];
+    const previousDropTargetIds = [...this.getDropTargetIds()];
+
+    for (const dropTargetId in this.registry.dropTargets) {
+      const viewModel = this.registry.getDropTargetViewModel(dropTargetId);
+
+      if (this.getItemType() !== viewModel.itemType) {
+        continue;
+      }
+
+      const { top, bottom, left, right } = viewModel.element.getBoundingClientRect();
+      if (
+        clientOffset.x >= left &&
+        clientOffset.x <= right &&
+        clientOffset.y >= top &&
+        clientOffset.y <= bottom
+      ) {
+        newDropTargetIds.push(dropTargetId);
+      }
+    }
+
+    this.currentOperation.state.dropTargetIds = newDropTargetIds;
+
+    this.dirtyViews = { dragSources: [this.getDragSourceId()], dropTargets: [...newDropTargetIds, ...previousDropTargetIds] };
 
     this.pushOffsetChanges();
+    this.pushStateChanges();
 
     this.dirtyViews = null;
+
+    for (const dropTargetId of this.getDropTargetIds()) {
+      const viewModel = this.registry.getDropTargetViewModel(dropTargetId);
+      viewModel.hover();
+    }
   }
 
   endDrag = (event: Event) => {
+    const sourceViewModel = this.registry.getDragSourceViewModel(this.getDragSourceId());
+    for (const dropTargetId of this.getDropTargetIds()) {
+      const viewModel = this.registry.getDropTargetViewModel(dropTargetId);
+
+      if (viewModel.canDrop()) {
+        const result = viewModel.drop();
+
+        if (result) {
+          this.currentOperation.result = result;
+        }
+      }
+    }
+
+    this.dirtyViews = { dragSources: [this.getDragSourceId()], dropTargets: [...this.getDropTargetIds()] };
+
+    this.pushStateChanges();
+
+    sourceViewModel.endDrag();
+
     this.dirtyViews = { dragSources: [this.getDragSourceId()], dropTargets: [] };
     this.currentOperation = null;
 

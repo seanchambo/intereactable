@@ -1,11 +1,16 @@
 import Model from "./Model";
-import { Unsubscribe } from "./Registry";
+import Registry, { Unsubscribe } from "./Registry";
 
 export default class Controller {
   model: Model;
+  registry: Registry;
 
   constructor(model: Model) {
     this.model = model;
+  }
+
+  setRegistry = (registry: Registry) => {
+    this.registry = registry;
   }
 
   registerDragSource = (id: string, element: HTMLElement): Unsubscribe => {
@@ -21,6 +26,9 @@ export default class Controller {
     }
 
     const handleMouseDown = (event: MouseEvent) => {
+      const viewModel = this.registry.getDragSourceViewModel(id);
+      if (!viewModel.canDrag()) { return; }
+
       this.model.beginDrag(id, event);
 
       document.addEventListener('mousemove', handleMouseMove);

@@ -5,39 +5,39 @@ import Model from './Model';
 import Registry from './Registry';
 import { Consumer } from './Provider';
 
-export interface DragSourceViewModelImpl {
+export interface DropTargetViewModelImpl {
   id: string | null;
   element: HTMLElement | null;
   itemType: string;
   registry: Registry | null;
   model: Model | null;
   handleChange: () => void;
-  canDrag: () => boolean;
-  beginDrag: () => void;
-  endDrag: () => void;
+  canDrop: () => boolean;
+  hover: () => void;
+  drop: () => { [key: string]: any } | null;
 }
 
 export type GetId<Props> = (props: Props) => string;
-export type BeginDrag<Props> = (props: Props, model: Model) => void;
-export type EndDrag<Props> = (props: Props, model: Model) => void;
-export type CanDrag<Props> = (props: Props, model: Model) => boolean;
+export type Hover<Props> = (props: Props, model: Model) => void;
+export type Drop<Props> = (props: Props, model: Model) => { [key: string]: any } | undefined;
+export type CanDrop<Props> = (props: Props, model: Model) => boolean;
 export type RegisterRef = (element: HTMLElement) => void;
-export type DragSourceViewModelCollector = (id: string, model: Model, registerRef: RegisterRef) => { [key: string]: any };
+export type DropTargetViewModelCollector = (id: string, model: Model, registerRef: RegisterRef) => { [key: string]: any };
 
-export interface DragSourceViewModelSpecification<Props> {
-  beginDrag?: BeginDrag<Props>,
-  endDrag?: EndDrag<Props>,
-  canDrag?: CanDrag<Props>,
+export interface DropTargetViewModelSpecification<Props> {
+  hover?: Hover<Props>,
+  drop?: Drop<Props>,
+  canDrop?: CanDrop<Props>,
 }
 
-export default function DragSourceViewModel<Props>(
+export default function DropTargetViewModel<Props>(
   getId: GetId<Props>,
   itemType: string,
-  spec: DragSourceViewModelSpecification<Props>,
-  collect: DragSourceViewModelCollector,
+  spec: DropTargetViewModelSpecification<Props>,
+  collect: DropTargetViewModelCollector,
 ) {
   return (WrappedComponent: React.ComponentClass) => {
-    return class DragSourceViewModel extends React.Component<Props> implements DragSourceViewModelImpl {
+    return class DropTargetViewModel extends React.Component<Props> implements DropTargetViewModelImpl {
       id: string | null = null;
       isCurrentlyMounted: boolean;
       element: HTMLElement | null = null;
@@ -60,7 +60,7 @@ export default function DragSourceViewModel<Props>(
       }
 
       public componentWillUnmount() {
-        this.registry.unregisterDragSourceViewModel(this.id);
+        this.registry.unregisterDropTargetViewModel(this.id);
         this.id = null;
         this.element = null;
         this.registry = null;
@@ -87,16 +87,16 @@ export default function DragSourceViewModel<Props>(
         const id = getId(props);
 
         if ((id !== this.id || this.element !== element) && element !== null) {
-          this.registry.unregisterDragSourceViewModel(this.id);
+          this.registry.unregisterDropTargetViewModel(this.id);
           this.id = id;
           this.element = element;
-          this.registry.registerDragSourceViewModel(this.id, this);
+          this.registry.registerDropTargetViewModel(this.id, this);
         }
       }
 
-      public canDrag = (): boolean => spec.canDrag ? spec.canDrag(this.props, this.model) : true;
-      public beginDrag = (): void => spec.beginDrag && spec.beginDrag(this.props, this.model);
-      public endDrag = (): void => spec.endDrag && spec.endDrag(this.props, this.model);
+      public hover = (): void => spec.hover && spec.hover(this.props, this.model);
+      public drop = (): { [key: string]: any } | undefined => spec.drop && spec.drop(this.props, this.model);
+      public canDrop = (): boolean => spec.canDrop ? spec.canDrop(this.props, this.model) : true;
 
       render() {
         return (

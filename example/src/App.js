@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Provider, DragPreviewViewModel, DragSourceViewModel } from '../../dist';
+import { Provider, DragPreviewViewModel, DragSourceViewModel, DropTargetViewModel } from '../../dist';
 
 const Item = (props) => {
   let style = { width: 100, height: 100, backgroundColor: 'grey' };
@@ -21,7 +21,36 @@ const itemCollect = (id, model, registerRef) => ({
   sourceClientOffset: model.getSourceClientOffset(),
 });
 
-const DraggableItem = DragSourceViewModel(() => `1`, 'item', {}, itemCollect)(Item);
+const itemSpec = {
+  beginDrag: (props, model) => console.log('** beginDrag'),
+  endDrag: (props, model) => console.log('** endDrag'),
+}
+
+const DraggableItem = DragSourceViewModel(() => `1`, 'item', itemSpec, itemCollect)(Item);
+
+const Zone = (props) => {
+  let style = { width: 500, height: 500, backgroundColor: 'yellow', opacity: 0.5 };
+
+  if (props.isOver) {
+    style.opacity = 1;
+  }
+
+  return (
+    <div style={style} ref={props.registerRef} />
+  )
+}
+
+const zoneCollect = (id, model, registerRef) => ({
+  registerRef,
+  isOver: model.isOverTarget(id),
+});
+
+const zoneSpec = {
+  hover: (props, model) => console.log('** hover'),
+  drop: (props, model) => console.log('** drop'),
+}
+
+const DroppableZone = DropTargetViewModel(() => `1`, 'item', zoneSpec, zoneCollect)(Zone);
 
 const previewContainerStyles = {
   position: 'fixed',
@@ -55,6 +84,7 @@ class App extends React.Component {
     return (
       <Provider>
         <DraggableItem />
+        <DroppableZone />
         <DragLayerPreview />
       </Provider>
     )

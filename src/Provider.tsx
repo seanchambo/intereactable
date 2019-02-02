@@ -19,6 +19,7 @@ class DragDropProvider extends React.PureComponent<{}, Context> {
     const controller = new Controller(model);
     const registry = new Registry(model, controller);
     model.setRegistry(registry);
+    controller.setRegistry(registry);
 
     this.state = {
       model,
