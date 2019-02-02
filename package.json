@@ -1,6 +1,6 @@
 {
   "name": "intereactable",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React Drag and Drop Library",
   "main": "./dist/index",
   "typings": "./dist/index",
