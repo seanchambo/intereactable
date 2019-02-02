@@ -7,9 +7,9 @@ import { Consumer } from './Provider';
 
 export type DragPreviewViewModelCollector = (model: Model) => { [key: string]: any };
 
-export default function DragPreviewViewModel(collect: DragPreviewViewModelCollector) {
+export default function DragPreviewViewModel<Props>(collect: DragPreviewViewModelCollector) {
   return (WrappedComponent: React.ComponentClass) => {
-    return class DragPreviewViewModel extends React.Component {
+    return class DragPreviewViewModel extends React.Component<Props> {
       isCurrentlyMounted: boolean;
       model: Model | null = null;
       subscriptions: Unsubscribe[] = [];

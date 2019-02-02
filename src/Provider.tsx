@@ -11,7 +11,7 @@ interface Context {
   registry: Registry;
 }
 
-class DragDropProvider extends React.PureComponent<{}, Context> {
+export default class DragDropProvider extends React.PureComponent<{}, Context> {
   constructor(props: {}) {
     super(props);
 
@@ -36,5 +36,3 @@ class DragDropProvider extends React.PureComponent<{}, Context> {
     )
   }
 }
-
-export default DragDropProvider;
